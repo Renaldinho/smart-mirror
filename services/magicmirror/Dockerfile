@@ -12,10 +12,11 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 COPY vendor/MagicMirror2 /opt/magic_mirror
-RUN npm ci --omit=dev || npm install --omit=dev --no-audit --no-fund
+RUN npm ci --omit=dev --ignore-scripts \
+  || npm install --omit=dev --ignore-scripts --no-audit --no-fund
 
 COPY services/mmm-gesture-bridge /opt/magic_mirror/modules/MMM-GestureBridge
-RUN cd /opt/magic_mirror/modules/MMM-GestureBridge && npm ci --omit=dev
+RUN cd /opt/magic_mirror/modules/MMM-GestureBridge && npm ci --omit=dev --ignore-scripts
 
 COPY config/magicmirror/config.js /opt/magic_mirror/config/config.js
 COPY config/magicmirror/custom.css /opt/magic_mirror/css/custom.css
