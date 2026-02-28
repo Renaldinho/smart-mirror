@@ -27,6 +27,8 @@ services:
       retries: 12
 
   gesture-service:
+    profiles:
+      - docker-gesture
     build:
       context: .
       dockerfile: services/gesture-service/Dockerfile

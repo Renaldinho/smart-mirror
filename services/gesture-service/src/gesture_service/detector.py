@@ -56,6 +56,24 @@ class HandDetector:
         self.camera_backend = "opencv"
         self.camera_state = "ok"
 
+    def recover(self) -> None:
+        if self._picam2 is not None:
+            try:
+                self._picam2.stop()
+                self._picam2.start()
+                self.camera_state = "degraded"
+            except Exception:
+                self.camera_state = "error"
+            return
+
+        if self._capture is not None:
+            self._capture.release()
+        self._capture = cv2.VideoCapture(self._camera_index)
+        if self._capture.isOpened():
+            self.camera_state = "degraded"
+        else:
+            self.camera_state = "error"
+
     def stop(self) -> None:
         if self._capture is not None:
             self._capture.release()
@@ -68,16 +86,24 @@ class HandDetector:
 
     def _capture_frame(self) -> Any:
         if self._picam2 is not None:
-            frame = self._picam2.capture_array()
+            try:
+                frame = self._picam2.capture_array()
+            except Exception as exc:
+                self.camera_state = "degraded"
+                raise RuntimeError("Failed to read frame from picamera2") from exc
             if frame.shape[-1] == 4:
+                self.camera_state = "ok"
                 return cv2.cvtColor(frame, cv2.COLOR_BGRA2BGR)
+            self.camera_state = "ok"
             return frame
 
         if self._capture is None:
             raise RuntimeError("Camera not initialized")
         ok, frame = self._capture.read()
         if not ok:
+            self.camera_state = "degraded"
             raise RuntimeError("Failed to read frame from camera")
+        self.camera_state = "ok"
         return frame
 
     def poll(self) -> DetectionResult:
@@ -99,4 +125,3 @@ class HandDetector:
             cv2.waitKey(1)
 
         return DetectionResult(landmarks=landmarks, frame_bgr=frame_bgr)
-

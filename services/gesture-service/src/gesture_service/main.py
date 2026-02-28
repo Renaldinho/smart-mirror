@@ -80,7 +80,19 @@ def main() -> None:
             loop_start = time.monotonic()
             now_ms = int(time.time() * 1000)
 
-            result = detector.poll()
+            try:
+                result = detector.poll()
+            except RuntimeError as exc:
+                detector.recover()
+                log_json(
+                    logger,
+                    "gesture-camera-read-failed",
+                    error=str(exc),
+                    backend=detector.camera_backend,
+                    cameraState=detector.camera_state,
+                )
+                time.sleep(0.5)
+                continue
             gesture, confidence, hands_detected = classify_frame(result.landmarks)
 
             emitted = False
