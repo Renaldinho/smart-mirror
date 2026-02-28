@@ -14,12 +14,16 @@ MagicMirror2-based mirror runtime with local gesture control.
 
 1. Copy env vars:
    - `cp .env.example .env`
-2. Start full stack (all Docker images):
-   - `docker compose up --build -d`
-3. Subsequent starts (no rebuild):
-   - `docker compose up -d`
+2. Start core runtime in Docker:
+   - `docker compose up --build -d mosquitto magicmirror`
+3. Install and run host gesture service (recommended on Raspberry Pi):
+   - `./scripts/install-gesture-service.sh`
 4. Open mirror runtime:
    - `http://localhost:8080`
+
+Optional all-docker gesture mode:
+
+- `docker compose --profile docker-gesture up --build -d`
 
 ## Actions mapped in MVP
 
@@ -47,14 +51,13 @@ MMM-GestureBridge tests:
 ## Raspberry Pi notes
 
 - Target OS: Raspberry Pi OS.
-- Default capture source is camera index `CAMERA_INDEX=0`.
-- Optional explicit camera source: set `GESTURE_CAMERA_DEVICE` to `/dev/videoX` or numeric index.
-- Optional fallback probing: set `CAMERA_AUTO_SCAN=1` (scans indices `0..CAMERA_SCAN_MAX_INDEX`).
+- Recommended architecture:
+  - `mosquitto + magicmirror` in Docker
+  - `gesture-service` on host via venv + systemd (`scripts/install-gesture-service.sh`)
+- Host default capture source is `CAMERA_INDEX=0`.
+- Optional explicit source: `GESTURE_CAMERA_DEVICE=/dev/videoX` or numeric index.
+- Optional fallback probing: `CAMERA_AUTO_SCAN=1` with `CAMERA_SCAN_MAX_INDEX`.
 - Run Chromium in kiosk mode against `http://localhost:8080`.
-
-Optional fallback mode:
-
-- Run gesture service on host OS using `scripts/run-gesture-host.sh` if your camera stack is unstable in Docker.
 
 Detailed setup docs:
 

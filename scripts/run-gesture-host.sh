@@ -31,5 +31,16 @@ export GESTURE_CONTRACT_PATH="${GESTURE_CONTRACT_PATH:-$ROOT_DIR/shared/gesture-
 export PREFER_PICAMERA2="${PREFER_PICAMERA2:-1}"
 export CAMERA_INDEX="${CAMERA_INDEX:-0}"
 
+# Backward-compat for older .env values used only inside Docker containers.
+if [[ "$GESTURE_CONFIG_PATH" == /app/* ]]; then
+  export GESTURE_CONFIG_PATH="$ROOT_DIR/config/gestures.yaml"
+fi
+if [[ "$GESTURE_CONTRACT_PATH" == /app/* ]]; then
+  export GESTURE_CONTRACT_PATH="$ROOT_DIR/shared/gesture-config/contract.json"
+fi
+if [[ "$MQTT_HOST" == "mosquitto" ]]; then
+  export MQTT_HOST="127.0.0.1"
+fi
+
 cd "$SERVICE_DIR"
 exec env PYTHONPATH=src python3 -m gesture_service.main
