@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "gestures": [
+    "OPEN_PALM",
+    "FIST",
+    "POINTING",
+    "BOTH_PINCH",
+    "UNKNOWN"
+  ],
+  "actions": [
+    "TOGGLE_WIDGETS",
+    "NEXT_LAYOUT",
+    "NEXT_WIDGET",
+    "TOGGLE_FOCUS_MODE",
+    "IGNORE"
+  ],
+  "topics": {
+    "raw": "mirror/gesture/raw/v1",
+    "action": "mirror/gesture/action/v1",
+    "status": "mirror/gesture/status/v1"
+  }
+}

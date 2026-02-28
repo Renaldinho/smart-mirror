@@ -1,0 +1,19 @@
+.MMM-GestureBridge .module-content {
+  width: 100%;
+}
+
+.MMM-GestureBridge .mmm-gesture-overlay {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 360px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.55);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.MMM-GestureBridge .mmm-gesture-overlay strong {
+  color: #fde68a;
+}

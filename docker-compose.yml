@@ -1,0 +1,69 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: smart-mirror-mosquitto
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "127.0.0.1:1883:1883"
+    command: >
+      sh -c "if [ ! -f /mosquitto/data/passwords ]; then
+      mosquitto_passwd -b -c /mosquitto/data/passwords $$MQTT_USERNAME $$MQTT_PASSWORD;
+      fi;
+      exec mosquitto -c /mosquitto/config/mosquitto.conf"
+    volumes:
+      - ./config/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto-data:/mosquitto/data
+      - mosquitto-log:/mosquitto/log
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mosquitto_pub -h localhost -p 1883 -u $$MQTT_USERNAME -P $$MQTT_PASSWORD -t mirror/gesture/healthcheck -m ok"
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 12
+
+  gesture-service:
+    build:
+      context: .
+      dockerfile: services/gesture-service/Dockerfile
+    container_name: smart-mirror-gesture-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    command: python -m gesture_service.main
+    volumes:
+      - ./config/gestures.yaml:/app/config/gestures.yaml:ro
+      - ./shared/gesture-config/contract.json:/app/shared/gesture-config/contract.json:ro
+    devices:
+      - /dev/video0:/dev/video0
+      - /dev/vchiq:/dev/vchiq
+
+  magicmirror:
+    build:
+      context: .
+      dockerfile: services/magicmirror/Dockerfile
+    container_name: smart-mirror-magicmirror
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./config/magicmirror/config.js:/opt/magic_mirror/config/config.js:ro
+      - ./config/magicmirror/custom.css:/opt/magic_mirror/css/custom.css:ro
+      - ./config/gestures.yaml:/opt/magic_mirror/config/gestures.yaml:ro
+      - ./shared/gesture-config/contract.json:/opt/magic_mirror/shared/gesture-config/contract.json:ro
+
+volumes:
+  mosquitto-data:
+  mosquitto-log:

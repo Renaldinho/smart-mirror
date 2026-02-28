@@ -1,0 +1,16 @@
+.env
+.env.local
+.DS_Store
+Thumbs.db
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+node_modules/
+*.log
+coverage/
+.idea/
+.vscode/
+mosquitto-data/
+mosquitto-log/

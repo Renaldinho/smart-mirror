@@ -1,0 +1,17 @@
+version: 1
+device_id: mirror-rpi-01
+detection:
+  min_detection_confidence: 0.7
+  min_tracking_confidence: 0.7
+  stability_frames: 4
+  cooldown_ms: 1200
+  publish_fps: 15
+  no_hand_reset_ms: 1000
+mapping:
+  OPEN_PALM: TOGGLE_WIDGETS
+  FIST: NEXT_LAYOUT
+  POINTING: NEXT_WIDGET
+  BOTH_PINCH: TOGGLE_FOCUS_MODE
+  UNKNOWN: IGNORE
+diagnostics:
+  overlay_enabled: true
