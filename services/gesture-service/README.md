@@ -19,6 +19,7 @@ Python service that:
 - `MQTT_CLIENT_ID_PREFIX` (default: `gesture-service`)
 - `GESTURE_DEBUG_WINDOW` (`1` to open OpenCV debug window)
 - `CAMERA_INDEX` (default: `0`, used for OpenCV fallback)
+- `CAMERA_DEVICE` (example: `/dev/video1`, preferred OpenCV device path)
 
 ## Local test
 

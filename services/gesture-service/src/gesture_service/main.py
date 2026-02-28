@@ -36,6 +36,7 @@ def main() -> None:
     config_path = Path(_env("GESTURE_CONFIG_PATH", "/app/config/gestures.yaml"))
     contract_path = Path(_env("GESTURE_CONTRACT_PATH", "/app/shared/gesture-config/contract.json"))
     camera_index = int(_env("CAMERA_INDEX", "0"))
+    camera_device = os.getenv("CAMERA_DEVICE")
     mqtt_host = _env("MQTT_HOST", "mosquitto")
     mqtt_port = int(_env("MQTT_PORT", "1883"))
     mqtt_username = _env("MQTT_USERNAME", "mirror")
@@ -65,11 +66,19 @@ def main() -> None:
         min_detection_confidence=config.detection.min_detection_confidence,
         min_tracking_confidence=config.detection.min_tracking_confidence,
         camera_index=camera_index,
+        camera_device=camera_device,
         debug_window=_should_show_debug_window(),
     )
     detector.start()
 
-    log_json(logger, "gesture-service-started", configPath=str(config_path), deviceId=config.device_id)
+    log_json(
+        logger,
+        "gesture-service-started",
+        configPath=str(config_path),
+        deviceId=config.device_id,
+        cameraBackend=detector.camera_backend,
+        cameraSource=detector.camera_source,
+    )
 
     status_interval_sec = 5.0
     next_status_at = time.monotonic() + status_interval_sec
@@ -89,6 +98,7 @@ def main() -> None:
                     "gesture-camera-read-failed",
                     error=str(exc),
                     backend=detector.camera_backend,
+                    source=detector.camera_source,
                     cameraState=detector.camera_state,
                 )
                 time.sleep(0.5)

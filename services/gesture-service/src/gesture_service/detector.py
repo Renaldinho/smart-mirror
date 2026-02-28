@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import glob
 import os
 from dataclasses import dataclass
 from typing import Any
@@ -26,9 +27,11 @@ class HandDetector:
         min_detection_confidence: float,
         min_tracking_confidence: float,
         camera_index: int = 0,
+        camera_device: str | None = None,
         debug_window: bool = False,
     ) -> None:
         self._camera_index = camera_index
+        self._camera_device = camera_device
         self._debug_window = debug_window
         self._hands = mp.solutions.hands.Hands(
             max_num_hands=2,
@@ -40,6 +43,7 @@ class HandDetector:
         self._picam2: Any | None = None
         self.camera_state: str = "error"
         self.camera_backend: str = "unknown"
+        self.camera_source: str = "unknown"
 
     def start(self) -> None:
         prefer_picamera = os.getenv("PREFER_PICAMERA2", "1") == "1"
@@ -50,11 +54,43 @@ class HandDetector:
             self.camera_state = "ok"
             return
 
-        self._capture = cv2.VideoCapture(self._camera_index)
-        if not self._capture.isOpened():
+        self._capture = self._open_capture()
+        if self._capture is None:
             raise RuntimeError("Unable to open camera device")
         self.camera_backend = "opencv"
         self.camera_state = "ok"
+
+    def _open_capture(self) -> cv2.VideoCapture | None:
+        candidates: list[int | str] = []
+        if self._camera_device:
+            candidates.append(self._camera_device)
+        candidates.append(self._camera_index)
+        auto_scan = os.getenv("CAMERA_AUTO_SCAN", "1") == "1"
+        if auto_scan:
+            candidates.extend(sorted(glob.glob("/dev/video*")))
+
+        # Preserve order while removing duplicates.
+        unique_candidates: list[int | str] = []
+        seen: set[str] = set()
+        for source in candidates:
+            key = str(source)
+            if key in seen:
+                continue
+            seen.add(key)
+            unique_candidates.append(source)
+
+        for source in unique_candidates:
+            cap = cv2.VideoCapture(source, cv2.CAP_V4L2)
+            if not cap.isOpened():
+                cap.release()
+                continue
+            ok, _frame = cap.read()
+            if not ok:
+                cap.release()
+                continue
+            self.camera_source = str(source)
+            return cap
+        return None
 
     def recover(self) -> None:
         if self._picam2 is not None:
@@ -68,8 +104,8 @@ class HandDetector:
 
         if self._capture is not None:
             self._capture.release()
-        self._capture = cv2.VideoCapture(self._camera_index)
-        if self._capture.isOpened():
+        self._capture = self._open_capture()
+        if self._capture is not None:
             self.camera_state = "degraded"
         else:
             self.camera_state = "error"

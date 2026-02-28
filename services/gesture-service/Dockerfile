@@ -15,6 +15,8 @@ RUN apt-get update \
     libsm6 \
     libxext6 \
     libxrender1 \
+    v4l-utils \
+  && (apt-get install -y --no-install-recommends python3-picamera2 libcamera0 || true) \
   && rm -rf /var/lib/apt/lists/*
 
 COPY services/gesture-service/pyproject.toml /app/pyproject.toml

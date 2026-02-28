@@ -27,8 +27,6 @@ services:
       retries: 12
 
   gesture-service:
-    profiles:
-      - docker-gesture
     build:
       context: .
       dockerfile: services/gesture-service/Dockerfile
@@ -36,6 +34,9 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      CAMERA_DEVICE: ${GESTURE_CAMERA_DEVICE:-/dev/video0}
+      CAMERA_AUTO_SCAN: ${CAMERA_AUTO_SCAN:-1}
     depends_on:
       mosquitto:
         condition: service_healthy
@@ -43,8 +44,9 @@ services:
     volumes:
       - ./config/gestures.yaml:/app/config/gestures.yaml:ro
       - ./shared/gesture-config/contract.json:/app/shared/gesture-config/contract.json:ro
-    devices:
-      - ${GESTURE_CAMERA_DEVICE:-/dev/video0}:/dev/video0
+      - /run/udev:/run/udev:ro
+      - /dev:/dev
+    privileged: true
 
   magicmirror:
     build:
