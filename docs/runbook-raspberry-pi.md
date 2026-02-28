@@ -114,12 +114,6 @@ systemctl --user restart smart-mirror-gesture.service
   - Lower `stability_frames` or `cooldown_ms` in `config/gestures.yaml`.
   - Ensure Pi CPU governor is not power-saving.
 
-Optional all-docker gesture mode (not recommended for Pi camera stack):
-
-```bash
-docker compose --profile docker-gesture up --build -d
-```
-
 ## 8) Build-time optimization tips
 
 - First build on Raspberry Pi can take 5-15 minutes; this is normal.

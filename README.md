@@ -21,10 +21,6 @@ MagicMirror2-based mirror runtime with local gesture control.
 4. Open mirror runtime:
    - `http://localhost:8080`
 
-Optional all-docker gesture mode:
-
-- `docker compose --profile docker-gesture up --build -d`
-
 ## Actions mapped in MVP
 
 - `OPEN_PALM` -> `TOGGLE_WIDGETS`
