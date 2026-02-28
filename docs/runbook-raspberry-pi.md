@@ -14,6 +14,7 @@ git clone <your-repo-url> smart-mirror
 cd smart-mirror
 git submodule update --init --recursive
 cp .env.example .env
+chmod +x scripts/run-kiosk.sh scripts/verify.sh
 ```
 
 Set secure MQTT credentials in `.env`.
