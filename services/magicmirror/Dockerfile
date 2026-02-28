@@ -1,9 +1,18 @@
-FROM node:20-bookworm-slim
+FROM node:22-bookworm-slim
 
 WORKDIR /opt/magic_mirror
 
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    git \
+    make \
+    g++ \
+    python3 \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY vendor/MagicMirror2 /opt/magic_mirror
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev || npm install --omit=dev --no-audit --no-fund
 
 COPY services/mmm-gesture-bridge /opt/magic_mirror/modules/MMM-GestureBridge
 RUN cd /opt/magic_mirror/modules/MMM-GestureBridge && npm ci --omit=dev
