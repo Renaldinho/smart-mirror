@@ -36,7 +36,7 @@ def main() -> None:
     config_path = Path(_env("GESTURE_CONFIG_PATH", "/app/config/gestures.yaml"))
     contract_path = Path(_env("GESTURE_CONTRACT_PATH", "/app/shared/gesture-config/contract.json"))
     camera_index = int(_env("CAMERA_INDEX", "0"))
-    camera_device = os.getenv("CAMERA_DEVICE")
+    camera_device = os.getenv("CAMERA_DEVICE") or None
     mqtt_host = _env("MQTT_HOST", "mosquitto")
     mqtt_port = int(_env("MQTT_PORT", "1883"))
     mqtt_username = _env("MQTT_USERNAME", "mirror")

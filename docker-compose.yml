@@ -35,8 +35,9 @@ services:
     env_file:
       - .env
     environment:
-      CAMERA_DEVICE: ${GESTURE_CAMERA_DEVICE:-/dev/video0}
-      CAMERA_AUTO_SCAN: ${CAMERA_AUTO_SCAN:-1}
+      CAMERA_DEVICE: ${GESTURE_CAMERA_DEVICE:-}
+      CAMERA_AUTO_SCAN: ${CAMERA_AUTO_SCAN:-0}
+      CAMERA_SCAN_MAX_INDEX: ${CAMERA_SCAN_MAX_INDEX:-4}
     depends_on:
       mosquitto:
         condition: service_healthy

@@ -18,15 +18,17 @@ chmod +x scripts/run-kiosk.sh scripts/run-gesture-host.sh scripts/verify.sh
 ```
 
 Set secure MQTT credentials in `.env`.
-Set camera node if needed (default is `/dev/video0`):
+Set camera source if needed (default is `CAMERA_INDEX=0`):
 
 ```bash
 ls -l /dev/video*
 # If needed:
 # echo "GESTURE_CAMERA_DEVICE=/dev/video1" >> .env
+# or:
+# echo "CAMERA_INDEX=1" >> .env
 ```
 
-`gesture-service` auto-scans `/dev/video*` by default (`CAMERA_AUTO_SCAN=1`).
+`gesture-service` does not auto-scan by default (`CAMERA_AUTO_SCAN=0`) to avoid long startup delays.
 
 ## 3) Start runtime
 
@@ -78,8 +80,13 @@ docker compose restart gesture-service magicmirror
 - No camera frames:
   - Verify devices exist:
     - `ls -l /dev/video*`
-  - If camera is not `/dev/video0`, set `GESTURE_CAMERA_DEVICE` in `.env` (example: `/dev/video1`).
-  - Keep `CAMERA_AUTO_SCAN=1` to allow fallback probing.
+  - Try index mode first:
+    - set `CAMERA_INDEX=0` or `CAMERA_INDEX=1` in `.env`.
+  - If needed, set explicit device path:
+    - `GESTURE_CAMERA_DEVICE=/dev/videoX`
+  - Enable fallback probing only if needed:
+    - `CAMERA_AUTO_SCAN=1`
+    - `CAMERA_SCAN_MAX_INDEX=4`
   - Restart gesture container:
     - `docker compose up -d gesture-service`
 - High latency:

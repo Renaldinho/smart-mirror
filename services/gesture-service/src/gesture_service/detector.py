@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import glob
 import os
 from dataclasses import dataclass
 from typing import Any
@@ -63,11 +62,16 @@ class HandDetector:
     def _open_capture(self) -> cv2.VideoCapture | None:
         candidates: list[int | str] = []
         if self._camera_device:
-            candidates.append(self._camera_device)
+            numeric_from_device = self._parse_device_as_index(self._camera_device)
+            if numeric_from_device is not None:
+                candidates.append(numeric_from_device)
+            else:
+                candidates.append(self._camera_device)
         candidates.append(self._camera_index)
-        auto_scan = os.getenv("CAMERA_AUTO_SCAN", "1") == "1"
+        auto_scan = os.getenv("CAMERA_AUTO_SCAN", "0") == "1"
+        scan_max_index = int(os.getenv("CAMERA_SCAN_MAX_INDEX", "4"))
         if auto_scan:
-            candidates.extend(sorted(glob.glob("/dev/video*")))
+            candidates.extend(range(0, max(0, scan_max_index) + 1))
 
         # Preserve order while removing duplicates.
         unique_candidates: list[int | str] = []
@@ -80,7 +84,7 @@ class HandDetector:
             unique_candidates.append(source)
 
         for source in unique_candidates:
-            cap = cv2.VideoCapture(source, cv2.CAP_V4L2)
+            cap = self._open_single_source(source)
             if not cap.isOpened():
                 cap.release()
                 continue
@@ -91,6 +95,26 @@ class HandDetector:
             self.camera_source = str(source)
             return cap
         return None
+
+    @staticmethod
+    def _parse_device_as_index(value: str) -> int | None:
+        stripped = value.strip()
+        if not stripped:
+            return None
+        if stripped.isdigit():
+            return int(stripped)
+        if stripped.startswith("/dev/video"):
+            suffix = stripped.removeprefix("/dev/video")
+            if suffix.isdigit():
+                return int(suffix)
+        return None
+
+    @staticmethod
+    def _open_single_source(source: int | str) -> cv2.VideoCapture:
+        if isinstance(source, int):
+            return cv2.VideoCapture(source, cv2.CAP_V4L2)
+        # Path-based capture with CAP_ANY avoids "can't be used to capture by name" warnings.
+        return cv2.VideoCapture(source)
 
     def recover(self) -> None:
         if self._picam2 is not None:

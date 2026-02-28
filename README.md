@@ -47,9 +47,9 @@ MMM-GestureBridge tests:
 ## Raspberry Pi notes
 
 - Target OS: Raspberry Pi OS.
-- Default camera device mapping is `GESTURE_CAMERA_DEVICE=/dev/video0`.
-- `gesture-service` also auto-scans `/dev/video*` when `CAMERA_AUTO_SCAN=1`.
-- If your camera appears on a different node, set `GESTURE_CAMERA_DEVICE` in `.env` (for example `/dev/video1`).
+- Default capture source is camera index `CAMERA_INDEX=0`.
+- Optional explicit camera source: set `GESTURE_CAMERA_DEVICE` to `/dev/videoX` or numeric index.
+- Optional fallback probing: set `CAMERA_AUTO_SCAN=1` (scans indices `0..CAMERA_SCAN_MAX_INDEX`).
 - Run Chromium in kiosk mode against `http://localhost:8080`.
 
 Optional fallback mode:
