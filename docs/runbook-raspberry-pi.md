@@ -24,6 +24,19 @@ Set secure MQTT credentials in `.env`.
 docker compose up --build -d
 ```
 
+After first successful build, use this faster command for normal restarts:
+
+```bash
+docker compose up -d
+```
+
+Build only when Dockerfiles or dependency manifests changed:
+
+```bash
+docker compose build magicmirror gesture-service
+docker compose up -d
+```
+
 Check:
 
 ```bash
@@ -55,8 +68,18 @@ docker compose restart gesture-service magicmirror
     - `docker volume rm smart-mirror_mosquitto-data`
 - No camera frames:
   - Verify devices exist:
-    - `ls -l /dev/video0 /dev/vchiq`
+    - `ls -l /dev/video*`
   - Confirm camera permissions for Docker user/group.
+  - If camera is not `/dev/video0`, set `GESTURE_CAMERA_DEVICE` in `.env` (example: `/dev/video1`).
 - High latency:
   - Lower `stability_frames` or `cooldown_ms` in `config/gestures.yaml`.
   - Ensure Pi CPU governor is not power-saving.
+
+## 7) Build-time optimization tips
+
+- First build on Raspberry Pi can take 5-15 minutes; this is normal.
+- Keep Docker BuildKit enabled (default in modern Docker).
+- Avoid `--no-cache` unless debugging build issues.
+- Use targeted rebuilds:
+  - `docker compose build magicmirror`
+  - `docker compose build gesture-service`

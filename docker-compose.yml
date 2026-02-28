@@ -42,8 +42,7 @@ services:
       - ./config/gestures.yaml:/app/config/gestures.yaml:ro
       - ./shared/gesture-config/contract.json:/app/shared/gesture-config/contract.json:ro
     devices:
-      - /dev/video0:/dev/video0
-      - /dev/vchiq:/dev/vchiq
+      - ${GESTURE_CAMERA_DEVICE:-/dev/video0}:/dev/video0
 
   magicmirror:
     build:

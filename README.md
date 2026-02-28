@@ -16,7 +16,9 @@ MagicMirror2-based mirror runtime with local gesture control.
    - `cp .env.example .env`
 2. Start stack:
    - `docker compose up --build`
-3. Open mirror runtime:
+3. Subsequent starts (no rebuild):
+   - `docker compose up -d`
+4. Open mirror runtime:
    - `http://localhost:8080`
 
 ## Actions mapped in MVP
@@ -45,7 +47,7 @@ MMM-GestureBridge tests:
 ## Raspberry Pi notes
 
 - Target OS: Raspberry Pi OS.
-- Gesture service container expects camera devices (`/dev/video0` and `/dev/vchiq`).
+- Gesture service container expects a camera video device (default `/dev/video0`).
 - Run Chromium in kiosk mode against `http://localhost:8080`.
 
 Detailed setup docs:

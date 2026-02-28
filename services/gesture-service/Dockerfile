@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.7
 FROM python:3.11-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -18,7 +19,8 @@ COPY services/gesture-service/pyproject.toml /app/pyproject.toml
 COPY services/gesture-service/README.md /app/README.md
 COPY services/gesture-service/src /app/src
 
-RUN pip install --upgrade pip \
+RUN --mount=type=cache,target=/root/.cache/pip \
+  pip install --upgrade pip \
   && pip install .
 
 CMD ["python", "-m", "gesture_service.main"]
